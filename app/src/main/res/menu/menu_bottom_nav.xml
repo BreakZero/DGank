@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/main_nav"
+        android:icon="@drawable/ic_profile"
+        android:title="干货"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/article_nav"
+        android:icon="@drawable/ic_profile"
+        android:title="文章"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/meizi_nav"
+        android:icon="@drawable/ic_profile"
+        android:title="妹子"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/profile_nav"
+        android:icon="@drawable/ic_profile"
+        android:title="我的"
+        app:showAsAction="ifRoom" />
+</menu>
