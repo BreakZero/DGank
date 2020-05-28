@@ -16,7 +16,10 @@ abstract class GirlModel : EpoxyModelWithHolder<Holder>() {
     lateinit var data: GanHuoInfo
 
     override fun bind(holder: Holder) {
-        holder.ivGirl.load(data.images.first())
+        holder.ivGirl.load(data.images.first()) {
+            crossfade(true)
+            placeholder(com.dj.baselibs.R.drawable.ic_girl_placehodle)
+        }
         holder.tvGirlDesc.text = data.desc
     }
 }

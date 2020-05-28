@@ -1,17 +1,17 @@
 package com.dj.gank.feature.ganhuo.index
 
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.dj.baselibs.model.Status
 import com.dj.baselibs.ui.BaseFragment
 import com.dj.gank.R
 import com.dj.gank.feature.ganhuo.content.GanHuoContentFragment
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_ganhuo.*
 import org.koin.androidx.scope.lifecycleScope
 import org.koin.androidx.viewmodel.scope.viewModel
+import timber.log.Timber
 import kotlin.properties.Delegates
 
 /**
@@ -34,17 +34,24 @@ class GanHuoFragment : BaseFragment(R.layout.fragment_ganhuo) {
         super.applyViewModel()
         viewModel.apply {
             categories.observe(this@GanHuoFragment, Observer {
-                if (fragmentStateAdapter.isExist()) return@Observer
-                it.forEach {
-                    fragmentStateAdapter.add(GanHuoContentFragment.newInstance(it.title))
+                when (it.status) {
+                    Status.LOADING -> Timber.d("loading")
+                    Status.ERROR -> Timber.e(it.error)
+                    Status.SUCCESS -> {
+                        Timber.d("success")
+                        if (fragmentStateAdapter.isExist()) return@Observer
+                        it.data?.forEach {
+                            fragmentStateAdapter.add(GanHuoContentFragment.newInstance(it.title))
+                        }
+                        ganhuoViewPager.adapter = fragmentStateAdapter
+                        val tabLayoutMediator =
+                            TabLayoutMediator(ganhuoTab, ganhuoViewPager,
+                                TabLayoutMediator.TabConfigurationStrategy { tab, position ->
+                                    tab.text = it?.data?.get(position)?.title ?: ""
+                                })
+                        tabLayoutMediator.attach()
+                    }
                 }
-                ganhuoViewPager.adapter = fragmentStateAdapter
-                val tabLayoutMediator =
-                    TabLayoutMediator(ganhuoTab, ganhuoViewPager,
-                        TabLayoutMediator.TabConfigurationStrategy { tab, position ->
-                            tab.text = it[position].title
-                        })
-                tabLayoutMediator.attach()
             })
         }
     }

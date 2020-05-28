@@ -1,18 +1,20 @@
-package com.dj.gank.feature.ganhuo.index
+ package com.dj.gank.feature.ganhuo.index
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
+import com.dj.baselibs.model.DataSource
 import com.dj.baselibs.ui.BaseViewModel
 import com.dj.gank.model.resp.Category
 import com.dj.gank.remote.GankApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 import org.koin.core.inject
-import timber.log.Timber
 
 /**
  * Created by Dougie
@@ -21,20 +23,23 @@ import timber.log.Timber
 class GanHuoViewModel : BaseViewModel(), KoinComponent {
     private val gankApi by inject<GankApi>()
 
-    private val _categories = MutableLiveData<List<Category>>()
+    private val _categories = MutableLiveData<DataSource<List<Category>>>()
     val categories = Transformations.map(_categories) {
         it
     }
 
     fun fetch() {
-        execute {
-            gankApi.getGanHuoCategories()
-        }.map {
-            it.data
-        }.onEach {
-            _categories.postValue(it)
-        }.catch {
-            Timber.e("GANHUO$it")
-        }.launchIn(viewModelScope)
+        viewModelScope.launch {
+            flow {
+                emit(DataSource.loading<List<Category>>())
+                val result = gankApi.getGanHuoCategories()
+                emit(DataSource.success(result.data))
+            }.flowOn(Dispatchers.IO)
+                .catch {
+                    emit(handleError(it))
+                }.collect {
+                    _categories.postValue(it)
+                }
+        }
     }
 }
