@@ -14,7 +14,7 @@ data class DataSource<out T>(
             return DataSource(Status.SUCCESS, data, null)
         }
 
-        fun <T> error(message: String, data: T?): DataSource<T> {
+        fun <T> error(message: String, data: T? = null): DataSource<T> {
             return DataSource(Status.ERROR, data, message)
         }
 
